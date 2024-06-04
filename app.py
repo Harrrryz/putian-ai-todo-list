@@ -6,6 +6,8 @@ app = Flask(__name__)
 # Set the secret key to some random bytes. Keep this really secret!
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
+TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+
 
 class TodoItem(object):
 
@@ -20,8 +22,37 @@ class TodoItem(object):
     def __repr__(self) -> str:
         return self.__str__()
 
+    def __settime__(self, plan_time: str) -> None:
+        self.plan_time = plan_time
 
+    def __setcreatetime__(self, create_time_str: str) -> None:
+        self.created_at = datetime.strptime(
+            create_time_str, TIME_FORMAT)
+
+
+file = open('C:/Users/harry/code/putian-ai-todo-list/todoData.txt', 'r')
+items_string_list: list[str] = file.readlines()
 items: list[TodoItem] = []
+
+for item_string in items_string_list:
+    item_name, create_time_str, plan_time = (
+        stuff.strip() for stuff in item_string.split("\t", 3))
+    todo_item: TodoItem = TodoItem(item_name, plan_time)
+    todo_item.__setcreatetime__(create_time_str)
+    items.append(todo_item)
+
+file.close()
+
+
+def add_item_totxt(items: list[TodoItem]):
+    with open('C:/Users/harry/code/putian-ai-todo-list/todoData.txt', 'w') as file:
+
+        for item in items:
+            item_name: str = item.item
+            item_create_time_str: str = item.created_at.strftime(TIME_FORMAT)
+            item_plan_time_str: str = item.plan_time
+            item_str: str = item_name+"\t"+item_create_time_str+"\t"+item_plan_time_str+"\n"
+            file.write(item_str)
 
 
 @app.route("/hello/<username>")
@@ -54,6 +85,7 @@ def add_todo():
     if request.method == 'POST':
         todo_item = TodoItem(request.form['item'], request.form['date'])
         items.append(todo_item)
+        add_item_totxt(items)
         return redirect(url_for('todo_items'))
     return '''
         <form method="post">
@@ -69,14 +101,16 @@ def delete_todo():
     if request.method == 'POST':
         for item in items:
             if item.item == request.form['item']:
-                items.remove(item)  # type: ignore
+                items.remove(item)
+                add_item_totxt(items)
                 return redirect(url_for('todo_items'))
+
     return """
         <form method="post">
         <p><input type=text name=item /></p>
         <p><input type=submit value=delete /></p>
         <form>
-"""
+    """
 
 
 @app.route('/update-todo', methods=['GET', 'POST'])  # type: ignore
@@ -84,14 +118,19 @@ def update_todo():
     if request.method == 'POST':
         for item in items:
             if item.item == request.form['item']:
-                items.remove(item)  # type: ignore
+                item.__settime__(
+                    request.form['date'])
                 return redirect(url_for('todo_items'))
     return """
         <form method="post">
+        <p> Item to update </p>
         <p><input type=text name=item /></p>
-        <p><input type=submit value=delete /></p>
+
+        <p> New item plan time: </p>
+        <p><input type=date name=date /></p>
+        <p><input type=submit value=updateDate /></p>
         <form>
-"""
+    """
 
 
 @app.route('/todo-items')
