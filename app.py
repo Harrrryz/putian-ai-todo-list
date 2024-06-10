@@ -1,8 +1,11 @@
 from datetime import datetime
+import time
 from flask import Flask, redirect, render_template, request, url_for
-from flask import session
+from flask import session, jsonify
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 # Set the secret key to some random bytes. Keep this really secret!
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
@@ -28,6 +31,13 @@ class TodoItem(object):
     def __setcreatetime__(self, create_time_str: str) -> None:
         self.created_at = datetime.strptime(
             create_time_str, TIME_FORMAT)
+
+    def to_dict(self):
+        return {
+            'item': self.item,
+            'created_at': self.created_at.strftime(TIME_FORMAT),
+            'plan_time': self.plan_time
+        }
 
 
 file = open('C:/Users/harry/code/putian-ai-todo-list/todoData.txt', 'r')
@@ -96,11 +106,20 @@ def add_todo():
         '''
 
 
+@app.route('/add-todo-json', methods=['POST'])
+def add_todo_json():
+    todo_item = TodoItem(request.json['item'],  # type: ignore
+                         request.json['date'])  # type: ignore
+    items.append(todo_item)
+    add_item_totxt(items)
+    return jsonify({'isOk': True})
+
+
 @app.route('/delete-todo', methods=['GET', 'POST'])  # type: ignore
 def delete_todo():
     if request.method == 'POST':
         for item in items:
-            if item.item == request.form['item']:
+            if item.item == request.form['item']:  # type: ignore
                 items.remove(item)
                 add_item_totxt(items)
                 return redirect(url_for('todo_items'))
@@ -111,6 +130,15 @@ def delete_todo():
         <p><input type=submit value=delete /></p>
         <form>
     """
+
+
+@app.route('/delete-todo-json', methods=['POST'])  # type: ignore
+def delete_todo_json():
+    for item in items:
+        if item.item == request.json['item']:  # type: ignore
+            items.remove(item)
+            add_item_totxt(items)
+            return jsonify({'isOk': True})
 
 
 @app.route('/update-todo', methods=['GET', 'POST'])  # type: ignore
@@ -133,9 +161,24 @@ def update_todo():
     """
 
 
+@app.route('/update-todo-json', methods=['POST'])  # type: ignore
+def update_todo_json():
+    for item in items:
+        if item.item == request.json['item']:  # type: ignore
+            item.__settime__(
+                request.json['date'])  # type: ignore
+            return jsonify({'isOk': True})
+
+
 @app.route('/todo-items')
 def todo_items():
     return render_template('todo-items.html', items=items)
+
+
+@app.route('/todo-items-json')
+def todo_items_json():
+    # time.sleep(3)
+    return jsonify([item.to_dict() for item in items])
 
 
 @app.route('/logout')

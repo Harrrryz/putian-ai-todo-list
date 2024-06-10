@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles/style.css">
+    <title>Document</title>
+</head>
+
+<body>
+    <h1 class="creepy">Hello</h1>
+    <span id="name" class="logo">Harry</span>
+    <button id="change-name-button" onclick="setName">change name</button>
+
+    <div>
+        <h1>Get</h1>
+        <button id="get-todo">get todo</button>
+        <div id="todos" style="margin-top: 30px;"></div>
+    </div>
+
+    <div>
+        <h1>Create</h1>
+        <label for="item">item: </label>
+        <input id="create-item" type="text">
+
+        <label for="date">date: </label>
+        <input type="date" name="date" id="create-item-date">
+
+        <button id="create-button">create</button>
+
+        <label for="item">select delete item: </label>
+        <input id="select-delete-item" type="text">
+        <button id="delete-button">delete</button>
+
+        <label for="item">select update item: </label>
+        <input id="select-update-item" type="text">
+        <label for="date">select update date: </label>
+        <input type="date" name="date" id="select-update-date">
+        <button id="update-button">update</button>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
