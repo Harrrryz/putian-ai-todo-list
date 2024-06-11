@@ -3,6 +3,19 @@ import time
 from flask import Flask, redirect, render_template, request, url_for
 from flask import session, jsonify
 from flask_cors import CORS
+import sqlite3
+
+from flask import g
+
+DATABASE = 'todo.db'
+
+
+def get_db():
+    db = getattr(g, '_database', None)
+    if db is None:
+        db = g._database = sqlite3.connect(DATABASE)
+    return db
+
 
 app = Flask(__name__)
 CORS(app)
@@ -112,6 +125,13 @@ def add_todo_json():
                          request.json['date'])  # type: ignore
     items.append(todo_item)
     add_item_totxt(items)
+
+    with app.app_context():
+        db = get_db()
+        script = f"INSERT INTO todo (item) VALUES ({todo_item.item})"
+        print(script)
+        db.cursor().execute(script)
+        db.commit()
     return jsonify({'isOk': True})
 
 
