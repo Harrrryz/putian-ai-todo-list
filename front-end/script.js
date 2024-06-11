@@ -20,7 +20,7 @@ async function getTodos() {
         let i = 1
         for (const item of data) {
             const div = document.createElement('div')
-            div.innerHTML = `${i}. ${item.item} - ${item.plan_time} created: ${item.created_at}`
+            div.innerHTML = `${i}. ${item.item} - plan_time: ${item.plan_time} created: ${item.created_at}`
             todosDiv.appendChild(div)
             i++
         }
@@ -53,14 +53,14 @@ async function createItem() {
 const deleteButton = document.getElementById("delete-button")
 deleteButton.addEventListener('click', deleteItem)
 async function deleteItem() {
-    const item = document.getElementById("select-delete-item").value
+    const index = document.getElementById("select-delete-item").value
     const response = await fetch('http://127.0.0.1:5000//delete-todo-json', {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ item: item })
+        body: JSON.stringify({ index: index })
     });
     if (!response.ok) {
         throw new Error(`Error fetching todo items: ${response.statusText}`);
@@ -73,15 +73,16 @@ async function deleteItem() {
 const updateButton = document.getElementById("update-button")
 updateButton.addEventListener('click', updateItem)
 async function updateItem() {
-    const item = document.getElementById("select-update-item").value
-    const date = document.getElementById("select-update-date").value
+    const index = document.getElementById("select-update-item").value
+    const plan_date = document.getElementById("select-update-plan_date").value
+    const item = document.getElementById("update-item").value
     const response = await fetch('http://127.0.0.1:5000//update-todo-json', {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ item: item, date: date })
+        body: JSON.stringify({ index: index, plan_date: plan_date, item: item })
     });
     if (!response.ok) {
         throw new Error(`Error fetching todo items: ${response.statusText}`);

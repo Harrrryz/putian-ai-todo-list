@@ -134,11 +134,10 @@ def delete_todo():
 
 @app.route('/delete-todo-json', methods=['POST'])  # type: ignore
 def delete_todo_json():
-    for item in items:
-        if item.item == request.json['item']:  # type: ignore
-            items.remove(item)
-            add_item_totxt(items)
-            return jsonify({'isOk': True})
+    index: int = int(request.json['index'])  # type: ignore
+    items.remove(items[index-1])  # type: ignore
+    add_item_totxt(items)
+    return jsonify({'isOk': True})
 
 
 @app.route('/update-todo', methods=['GET', 'POST'])  # type: ignore
@@ -161,13 +160,16 @@ def update_todo():
     """
 
 
-@app.route('/update-todo-json', methods=['POST'])  # type: ignore
+@app.route('/update-todo-json', methods=['GET', 'POST'])  # type: ignore
 def update_todo_json():
-    for item in items:
-        if item.item == request.json['item']:  # type: ignore
-            item.__settime__(
-                request.json['date'])  # type: ignore
-            return jsonify({'isOk': True})
+    index: int = int(request.json['index'])  # type: ignore
+    # type: ignore
+
+    # type: ignore
+    items[index-1].__settime__(request.json['plan_date'])  # type: ignore
+    items[index-1].item = request.json['item']  # type: ignore
+    add_item_totxt(items)
+    return jsonify({'isOk': True})
 
 
 @app.route('/todo-items')
