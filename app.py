@@ -1,5 +1,5 @@
 from datetime import datetime
-import time
+import time  # type: ignore
 from flask import Flask, redirect, render_template, request, url_for
 from flask import session, jsonify
 from flask_cors import CORS
