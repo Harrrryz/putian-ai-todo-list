@@ -5,6 +5,7 @@ from pydantic import BaseModel, field_validator
 from contextlib import asynccontextmanager
 from sqlalchemy import func
 from typing import Generic, TypeVar, Sequence
+from fastapi.middleware.cors import CORSMiddleware
 
 T = TypeVar('T')
 
@@ -108,9 +109,6 @@ def init_db_and_tables():
         session.commit()
 
 
-app = FastAPI()
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db_and_tables()
@@ -118,6 +116,14 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.post("/create_todos/", tags=['todo'])
